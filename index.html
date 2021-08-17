@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="generator" content="made with love by dartdoc 1.0.2">
+  <meta name="description" content="observers API docs, for the Dart programming language.">
+  <title>observers - Dart API docs</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  
+  <link rel="stylesheet" href="static-assets/github.css?v1">
+  <link rel="stylesheet" href="static-assets/styles.css?v1">
+  <link rel="icon" href="static-assets/favicon.png?v1">
+
+  
+</head>
+
+
+<body data-base-href=""
+      data-using-base-href="false">
+
+<div id="overlay-under-drawer"></div>
+
+<header id="title">
+  <button id="sidenav-left-toggle" type="button">&nbsp;</button>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li class="self-crumb">observers package</li>
+  </ol>
+  <div class="self-name">observers</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<main>
+
+
+  <div id="dartdoc-main-content" class="main-content">
+      
+<section class="desc markdown">
+  <h1 id="ciifen-observers-app">Ciifen Observers App</h1>
+<p>CIIFEN Mobile App for Observers</p>
+<h2 id="ciifen">CIIFEN</h2>
+<p><a href="http://ciifen.org/">CIIFEN</a></p>
+<h2 id="getting-started">Getting Started</h2>
+<h2 id="how-to-use">How to Use</h2>
+<p><strong>Step 1:</strong></p>
+<p>Download or clone this repo by using the link below:</p>
+<pre class="language-dart"><code>https://github.com/PhenChild/mobile-app.git
+</code></pre>
+<p><strong>Step 2:</strong></p>
+<p>Go to project root and execute the following command in console to get the required dependencies:</p>
+<pre class="language-dart"><code>flutter pub get 
+</code></pre>
+<p><strong>Step 3:</strong></p>
+<p>This project uses <code>floor</code> library that works with code generation, execute the following command to generate files:</p>
+<pre class="language-dart"><code>flutter packages pub run build_runner build --delete-conflicting-outputs
+</code></pre>
+<p>or watch command in order to keep the source code synced automatically:</p>
+<pre class="language-dart"><code>flutter packages pub run build_runner watch
+</code></pre>
+<h3 id="folder-structure">Folder Structure</h3>
+<p>Here is the core folder structure which flutter provides.</p>
+<pre class="language-dart"><code>observers/
+|- android
+|- build
+|- ios
+|- lib
+|- test
+</code></pre>
+<p>Here is the folder structure we have been using in this project</p>
+<pre class="language-dart"><code>lib/
+|- dao/
+|- models/
+|- providers/
+|- services/
+|- ui/
+  |- views/
+  |- widgets/
+  |- ciifen.dart
+  |- routes.dart
+|- utils/
+|- values/
+|- main.dart
+</code></pre>
+<h3 id="main">Main</h3>
+<p>This is the starting point of the application.</p>
+<pre class="language-dart"><code class="language-dart">import 'package:flutter/material.dart';
+import 'package:observers/providers/estacion_provier.dart';
+import 'package:observers/ui/ciifen.dart';
+import 'package:provider/provider.dart';
+
+void main() =&gt; runApp(MultiProvider(providers: [
+      ChangeNotifierProvider(create: (_) =&gt; EstacionProvider()),
+    ], child: Ciifen()));
+</code></pre>
+<h3 id="ciifen-2">Ciifen</h3>
+<p>This file contains all the application level configurations are defined in this file i.e, theme, routes, title, orientation etc.</p>
+<pre class="language-dart"><code class="language-dart">import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:observers/values/colors.dart';
+import 'package:observers/ui/routes.dart';
+
+class Ciifen extends StatefulWidget {
+  @override
+  _Ciifen createState() =&gt; _Ciifen();
+}
+
+class _Ciifen extends State&lt;Ciifen&gt; {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Ciifen',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+          primarySwatch: AppColors.mainColor,
+          visualDensity: VisualDensity.adaptivePlatformDensity,
+          brightness: Brightness.light),
+      initialRoute: '/',
+      onGenerateRoute: Routes.generateRoute,
+    );
+  }
+}
+</code></pre>
+<h3 id="routes">Routes</h3>
+<p>This file contains all the routes for application.</p>
+<pre class="language-dart"><code class="language-dart">import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:observers/models/estacion_model.dart';
+import 'package:observers/models/variable_model.dart';
+import 'package:observers/ui/views/home/home_view.dart';
+import 'package:observers/ui/views/login/login_view.dart';
+import 'package:observers/ui/views/report/report_view.dart';
+import 'package:observers/ui/views/report_clima/report_clima_view.dart';
+import 'package:observers/ui/views/splash/splash_view.dart';
+import 'package:observers/ui/views/sync/sync_view.dart';
+
+class Routes {
+  static Route&lt;dynamic&gt; generateRoute(RouteSettings settings) {
+    final args = settings.arguments;
+
+    switch (settings.name) {
+      case '/':
+        return MaterialPageRoute(builder: (_) =&gt; SplashView());
+      case '/home':
+        return CupertinoPageRoute(builder: (_) =&gt; HomeView());
+      case '/login':
+        return CupertinoPageRoute(builder: (_) =&gt; LoginView());
+      case '/report':
+        Map&lt;String, dynamic&gt; _args = args as Map&lt;String, dynamic&gt;;
+        Estacion _estacion = _args["estacion"] as Estacion;
+        Variable _variable = _args["variable"] as Variable;
+        Position _position = _args["position"] as Position;
+
+        return CupertinoPageRoute(
+            builder: (_) =&gt; ReportView(
+                  estacion: _estacion,
+                  variable: _variable,
+                  position: _position,
+                ));
+      case '/report-clima':
+        Map&lt;String, dynamic&gt; _args = args as Map&lt;String, dynamic&gt;;
+        Estacion _estacion = _args["estacion"] as Estacion;
+        Variable _variable = _args["variable"] as Variable;
+        Position _position = _args["position"] as Position;
+
+        return CupertinoPageRoute(
+            builder: (_) =&gt; ReportClimaView(
+                  estacion: _estacion,
+                  variable: _variable,
+                  position: _position,
+                ));
+      case '/sync':
+        Map&lt;String, dynamic&gt; _args = args as Map&lt;String, dynamic&gt;;
+        String _id = _args["id"];
+        String _token = _args["token"];
+
+        return CupertinoPageRoute(
+            builder: (_) =&gt; SyncView(token: _token, userId: _id));
+      default:
+        return _errorRoute();
+    }
+  }
+
+  static Route&lt;dynamic&gt; _errorRoute() {
+    return MaterialPageRoute(builder: (_) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text("Error"),
+          centerTitle: true,
+        ),
+        body: Center(
+          child: Text("ERROR"),
+        ),
+      );
+    });
+  }
+}
+</code></pre>
+<h2 id="full-documentation">Full Documentation</h2>
+<p><a href="https://phenchild.github.io/mobile-app-documentation/">Documentation</a></p>
+<h2 id="code-analyzer">Code Analyzer</h2>
+<h3 id="this-is-created-automatically-with-dartflutter-analyzer-to-checking-code-and-looking-for-possible-mistakes">This is created automatically with Dart/Flutter analyzer to checking code and looking for possible mistakes.</h3>
+<h3 id="the-following-command-is-run-by-github-actions">The following command is run by Github Actions</h3>
+<pre class="language-console"><code class="language-console">$ flutter analyze
+</code></pre>
+<h4 id="output">output:</h4>
+<p><a href="https://phenchild.github.io/mobile-app-documentation/analyzer/output.txt">Analyzer</a></p>
+<h2 id="code-test">Code Test</h2>
+<h3 id="this-is-created-automatically-with-dartflutter-to-checking-code-test">This is created automatically with Dart/Flutter to checking code test.</h3>
+<h3 id="the-following-command-is-run-by-github-actions-2">The following command is run by Github Actions</h3>
+<pre class="language-console"><code class="language-console">$ flutter test
+</code></pre>
+<h4 id="output-2">output:</h4>
+<p><a href="https://phenchild.github.io/mobile-app-documentation/test/output.txt">Test</a></p>
+</section>
+
+
+      <section class="summary">
+          <h2>Libraries</h2>
+        <dl>
+          <dt id="account_manager">
+  <span class="name"><a href="models_account_manager/models_account_manager-library.html">account_manager</a></span> 
+
+</dt>
+<dd> 
+</dd>
+
+          <dt id="api_service">
+  <span class="name"><a href="services_api_service/services_api_service-library.html">api_service</a></span> 
+
+</dt>
+<dd> 
+</dd>
+
+          <dt id="apis">
+  <span class="name"><a href="services_apis/services_apis-library.html">apis</a></span> 
+
+</dt>
+<dd> 
+</dd>
+
+          <dt id="auth_service">
+  <span class="name"><a href="services_auth_service/services_auth_service-library.html">auth_service</a></span> 
+
+</dt>
+<dd> 
+</dd>
+
+          <dt id="ciifen">
+  <span class="name"><a href="ui_ciifen/ui_ciifen-library.html">ciifen</a></span> 
+
+</dt>
+<dd> 
+</dd>
+
+          <dt id="colors">
+  <span class="name"><a href="values_colors/values_colors-library.html">colors</a></span> 
+
+</dt>
+<dd> 
+</dd>
+
+          <dt id="database">
+  <span class="name"><a href="dao_database/dao_database-library.html">database</a></span> 
+
+</dt>
+<dd> 
+</dd>
+
+          <dt id="db">
+  <span class="name"><a href="dao_db/dao_db-library.html">db</a></span> 
+
+</dt>
+<dd> 
+</dd>
+
+          <dt id="dimens">
+  <span class="name"><a href="values_dimens/values_dimens-library.html">dimens</a></span> 
+
+</dt>
+<dd> 
+</dd>
+
+          <dt id="edit_password_view">
+  <span class="name"><a href="ui_views_home_profile_edit_password_view/ui_views_home_profile_edit_password_view-library.html">edit_password_view</a></span> 
+
+</dt>
+<dd> 
+</dd>
+
+          <dt id="edit_profile_view">
+  <span class="name"><a href="ui_views_home_profile_edit_profile_view/ui_views_home_profile_edit_profile_view-library.html">edit_profile_view</a></span> 
+
+</dt>
+<dd> 
+</dd>
+
+          <dt id="estacion_dao">
+  <span class="name"><a href="dao_estacion_dao/dao_estacion_dao-library.html">estacion_dao</a></span> 
+
+</dt>
+<dd> 
+</dd>
+
+          <dt id="estacion_model">
+  <span class="name"><a href="models_estacion_model/models_estacion_model-library.html">estacion_model</a></span> 
+
+</dt>
+<dd> 
+</dd>
+
+          <dt id="estacion_provier">
+  <span class="name"><a href="providers_estacion_provier/providers_estacion_provier-library.html">estacion_provier</a></span> 
+
+</dt>
+<dd> 
+</dd>
+
+          <dt id="home_view">
+  <span class="name"><a href="ui_views_home_home_view/ui_views_home_home_view-library.html">home_view</a></span> 
+
+</dt>
+<dd> 
+</dd>
+
+          <dt id="item_list_shimmer_widget">
+  <span class="name"><a href="ui_widgets_item_list_shimmer_widget/ui_widgets_item_list_shimmer_widget-library.html">item_list_shimmer_widget</a></span> 
+
+</dt>
+<dd> 
+</dd>
+
+          <dt id="item_station_shimmer">
+  <span class="name"><a href="ui_widgets_item_station_shimmer/ui_widgets_item_station_shimmer-library.html">item_station_shimmer</a></span> 
+
+</dt>
+<dd> 
+</dd>
+
+          <dt id="item_variable_clima_widget">
+  <span class="name"><a href="ui_widgets_item_variable_clima_widget/ui_widgets_item_variable_clima_widget-library.html">item_variable_clima_widget</a></span> 
+
+</dt>
+<dd> 
+</dd>
+
+          <dt id="item_variable_widget">
+  <span class="name"><a href="ui_widgets_item_variable_widget/ui_widgets_item_variable_widget-library.html">item_variable_widget</a></span> 
+
+</dt>
+<dd> 
+</dd>
+
+          <dt id="loading_view">
+  <span class="name"><a href="ui_views_loading_loading_view/ui_views_loading_loading_view-library.html">loading_view</a></span> 
+
+</dt>
+<dd> 
+</dd>
+
+          <dt id="loading_widget">
+  <span class="name"><a href="ui_widgets_loading_widget/ui_widgets_loading_widget-library.html">loading_widget</a></span> 
+
+</dt>
+<dd> 
+</dd>
+
+          <dt id="location_service">
+  <span class="name"><a href="services_location_service/services_location_service-library.html">location_service</a></span> 
+
+</dt>
+<dd> 
+</dd>
+
+          <dt id="login_dialog_view">
+  <span class="name"><a href="ui_views_login_login_dialog_view/ui_views_login_login_dialog_view-library.html">login_dialog_view</a></span> 
+
+</dt>
+<dd> 
+</dd>
+
+          <dt id="login_view">
+  <span class="name"><a href="ui_views_login_login_view/ui_views_login_login_view-library.html">login_view</a></span> 
+
+</dt>
+<dd> 
+</dd>
+
+          <dt id="logout_dialog_widget">
+  <span class="name"><a href="ui_views_home_profile_logout_dialog_widget/ui_views_home_profile_logout_dialog_widget-library.html">logout_dialog_widget</a></span> 
+
+</dt>
+<dd> 
+</dd>
+
+          <dt id="main">
+  <span class="name"><a href="main/main-library.html">main</a></span> 
+
+</dt>
+<dd> 
+</dd>
+
+          <dt id="observacion_dao">
+  <span class="name"><a href="dao_observacion_dao/dao_observacion_dao-library.html">observacion_dao</a></span> 
+
+</dt>
+<dd> 
+</dd>
+
+          <dt id="observacion_model">
+  <span class="name"><a href="models_observacion_model/models_observacion_model-library.html">observacion_model</a></span> 
+
+</dt>
+<dd> 
+</dd>
+
+          <dt id="observer_model">
+  <span class="name"><a href="models_observer_model/models_observer_model-library.html">observer_model</a></span> 
+
+</dt>
+<dd> 
+</dd>
+
+          <dt id="profile_view">
+  <span class="name"><a href="ui_views_home_profile_profile_view/ui_views_home_profile_profile_view-library.html">profile_view</a></span> 
+
+</dt>
+<dd> 
+</dd>
+
+          <dt id="report_clima_view">
+  <span class="name"><a href="ui_views_report_clima_report_clima_view/ui_views_report_clima_report_clima_view-library.html">report_clima_view</a></span> 
+
+</dt>
+<dd> 
+</dd>
+
+          <dt id="report_dialog_widget">
+  <span class="name"><a href="ui_widgets_report_dialog_widget/ui_widgets_report_dialog_widget-library.html">report_dialog_widget</a></span> 
+
+</dt>
+<dd> 
+</dd>
+
+          <dt id="report_view">
+  <span class="name"><a href="ui_views_report_report_view/ui_views_report_report_view-library.html">report_view</a></span> 
+
+</dt>
+<dd> 
+</dd>
+
+          <dt id="reports_local_widget">
+  <span class="name"><a href="ui_views_home_reports_reports_local_widget/ui_views_home_reports_reports_local_widget-library.html">reports_local_widget</a></span> 
+
+</dt>
+<dd> 
+</dd>
+
+          <dt id="reports_sync_widget">
+  <span class="name"><a href="ui_views_home_reports_reports_sync_widget/ui_views_home_reports_reports_sync_widget-library.html">reports_sync_widget</a></span> 
+
+</dt>
+<dd> 
+</dd>
+
+          <dt id="reports_view">
+  <span class="name"><a href="ui_views_home_reports_reports_view/ui_views_home_reports_reports_view-library.html">reports_view</a></span> 
+
+</dt>
+<dd> 
+</dd>
+
+          <dt id="routes">
+  <span class="name"><a href="ui_routes/ui_routes-library.html">routes</a></span> 
+
+</dt>
+<dd> 
+</dd>
+
+          <dt id="select_station_widget">
+  <span class="name"><a href="ui_views_home_station_select_station_widget/ui_views_home_station_select_station_widget-library.html">select_station_widget</a></span> 
+
+</dt>
+<dd> 
+</dd>
+
+          <dt id="splash_view">
+  <span class="name"><a href="ui_views_splash_splash_view/ui_views_splash_splash_view-library.html">splash_view</a></span> 
+
+</dt>
+<dd> 
+</dd>
+
+          <dt id="station_view">
+  <span class="name"><a href="ui_views_home_station_station_view/ui_views_home_station_station_view-library.html">station_view</a></span> 
+
+</dt>
+<dd> 
+</dd>
+
+          <dt id="strings">
+  <span class="name"><a href="values_strings/values_strings-library.html">strings</a></span> 
+
+</dt>
+<dd> 
+</dd>
+
+          <dt id="sync_view">
+  <span class="name"><a href="ui_views_sync_sync_view/ui_views_sync_sync_view-library.html">sync_view</a></span> 
+
+</dt>
+<dd> 
+</dd>
+
+          <dt id="util">
+  <span class="name"><a href="utils_util/utils_util-library.html">util</a></span> 
+
+</dt>
+<dd> 
+</dd>
+
+          <dt id="variable_dao">
+  <span class="name"><a href="dao_variable_dao/dao_variable_dao-library.html">variable_dao</a></span> 
+
+</dt>
+<dd> 
+</dd>
+
+          <dt id="variable_model">
+  <span class="name"><a href="models_variable_model/models_variable_model-library.html">variable_model</a></span> 
+
+</dt>
+<dd> 
+</dd>
+
+        </dl>
+      </section>
+
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+  <li class="self-crumb">observers package</li>
+</ol>
+
+
+    <h5 class="hidden-xs"><span class="package-name">observers</span> <span class="package-kind">package</span></h5>
+    <ol>
+      <li class="section-title">Libraries</li>
+      <li><a href="models_account_manager/models_account_manager-library.html">account_manager</a></li>
+      <li><a href="services_api_service/services_api_service-library.html">api_service</a></li>
+      <li><a href="services_apis/services_apis-library.html">apis</a></li>
+      <li><a href="services_auth_service/services_auth_service-library.html">auth_service</a></li>
+      <li><a href="ui_ciifen/ui_ciifen-library.html">ciifen</a></li>
+      <li><a href="values_colors/values_colors-library.html">colors</a></li>
+      <li><a href="dao_database/dao_database-library.html">database</a></li>
+      <li><a href="dao_db/dao_db-library.html">db</a></li>
+      <li><a href="values_dimens/values_dimens-library.html">dimens</a></li>
+      <li><a href="ui_views_home_profile_edit_password_view/ui_views_home_profile_edit_password_view-library.html">edit_password_view</a></li>
+      <li><a href="ui_views_home_profile_edit_profile_view/ui_views_home_profile_edit_profile_view-library.html">edit_profile_view</a></li>
+      <li><a href="dao_estacion_dao/dao_estacion_dao-library.html">estacion_dao</a></li>
+      <li><a href="models_estacion_model/models_estacion_model-library.html">estacion_model</a></li>
+      <li><a href="providers_estacion_provier/providers_estacion_provier-library.html">estacion_provier</a></li>
+      <li><a href="ui_views_home_home_view/ui_views_home_home_view-library.html">home_view</a></li>
+      <li><a href="ui_widgets_item_list_shimmer_widget/ui_widgets_item_list_shimmer_widget-library.html">item_list_shimmer_widget</a></li>
+      <li><a href="ui_widgets_item_station_shimmer/ui_widgets_item_station_shimmer-library.html">item_station_shimmer</a></li>
+      <li><a href="ui_widgets_item_variable_clima_widget/ui_widgets_item_variable_clima_widget-library.html">item_variable_clima_widget</a></li>
+      <li><a href="ui_widgets_item_variable_widget/ui_widgets_item_variable_widget-library.html">item_variable_widget</a></li>
+      <li><a href="ui_views_loading_loading_view/ui_views_loading_loading_view-library.html">loading_view</a></li>
+      <li><a href="ui_widgets_loading_widget/ui_widgets_loading_widget-library.html">loading_widget</a></li>
+      <li><a href="services_location_service/services_location_service-library.html">location_service</a></li>
+      <li><a href="ui_views_login_login_dialog_view/ui_views_login_login_dialog_view-library.html">login_dialog_view</a></li>
+      <li><a href="ui_views_login_login_view/ui_views_login_login_view-library.html">login_view</a></li>
+      <li><a href="ui_views_home_profile_logout_dialog_widget/ui_views_home_profile_logout_dialog_widget-library.html">logout_dialog_widget</a></li>
+      <li><a href="main/main-library.html">main</a></li>
+      <li><a href="dao_observacion_dao/dao_observacion_dao-library.html">observacion_dao</a></li>
+      <li><a href="models_observacion_model/models_observacion_model-library.html">observacion_model</a></li>
+      <li><a href="models_observer_model/models_observer_model-library.html">observer_model</a></li>
+      <li><a href="ui_views_home_profile_profile_view/ui_views_home_profile_profile_view-library.html">profile_view</a></li>
+      <li><a href="ui_views_report_clima_report_clima_view/ui_views_report_clima_report_clima_view-library.html">report_clima_view</a></li>
+      <li><a href="ui_widgets_report_dialog_widget/ui_widgets_report_dialog_widget-library.html">report_dialog_widget</a></li>
+      <li><a href="ui_views_report_report_view/ui_views_report_report_view-library.html">report_view</a></li>
+      <li><a href="ui_views_home_reports_reports_local_widget/ui_views_home_reports_reports_local_widget-library.html">reports_local_widget</a></li>
+      <li><a href="ui_views_home_reports_reports_sync_widget/ui_views_home_reports_reports_sync_widget-library.html">reports_sync_widget</a></li>
+      <li><a href="ui_views_home_reports_reports_view/ui_views_home_reports_reports_view-library.html">reports_view</a></li>
+      <li><a href="ui_routes/ui_routes-library.html">routes</a></li>
+      <li><a href="ui_views_home_station_select_station_widget/ui_views_home_station_select_station_widget-library.html">select_station_widget</a></li>
+      <li><a href="ui_views_splash_splash_view/ui_views_splash_splash_view-library.html">splash_view</a></li>
+      <li><a href="ui_views_home_station_station_view/ui_views_home_station_station_view-library.html">station_view</a></li>
+      <li><a href="values_strings/values_strings-library.html">strings</a></li>
+      <li><a href="ui_views_sync_sync_view/ui_views_sync_sync_view-library.html">sync_view</a></li>
+      <li><a href="utils_util/utils_util-library.html">util</a></li>
+      <li><a href="dao_variable_dao/dao_variable_dao-library.html">variable_dao</a></li>
+      <li><a href="models_variable_model/models_variable_model-library.html">variable_model</a></li>
+</ol>
+
+  </div>
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div>
+
+</main>
+
+<footer>
+  <span class="no-break">
+    observers
+      1.0.0+1
+  </span>
+
+  
+</footer>
+
+
+
+<script src="static-assets/highlight.pack.js?v1"></script>
+<script src="static-assets/script.js?v1"></script>
+
+
+
+</body>
+
+</html>
+
